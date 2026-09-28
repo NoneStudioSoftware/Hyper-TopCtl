@@ -9,6 +9,8 @@ import io.github.hypertopctl.data.AppSettingsRepository
 import io.github.hypertopctl.data.SettingsRepository
 import io.github.hypertopctl.lsp.ListMode
 import io.github.hypertopctl.lsp.UiFrameworkValue
+import io.github.hypertopctl.ui.animation.predictiveback.PredictiveBackAnimation
+import io.github.hypertopctl.ui.animation.predictiveback.PredictiveBackExitDirection
 import io.github.hypertopctl.ui.theme.AppThemeSettings
 import io.github.hypertopctl.ui.theme.ColorMode
 import io.github.libxposed.service.XposedService
@@ -39,6 +41,9 @@ data class MainUiState(
     val colorStyle: String = PaletteStyle.TonalSpot.name,
     val colorSpec: String = ColorSpec.SpecVersion.SPEC_2025.name,
     val dynamicColor: Boolean = true,
+    val miuixTransitionAnimation: Boolean = true,
+    val predictiveBackAnimation: PredictiveBackAnimation = PredictiveBackAnimation.Scale,
+    val predictiveBackExitDirection: PredictiveBackExitDirection = PredictiveBackExitDirection.FOLLOW_GESTURE,
 ) {
     /** Build the immutable snapshot consumed by the theme layer. */
     fun toThemeSettings(): AppThemeSettings = AppThemeSettings(
@@ -108,6 +113,9 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
                 colorStyle = appSettings.colorStyle,
                 colorSpec = appSettings.colorSpec,
                 dynamicColor = appSettings.dynamicColor,
+                miuixTransitionAnimation = appSettings.miuixTransitionAnimation,
+                predictiveBackAnimation = PredictiveBackAnimation.fromValueOrDefault(appSettings.predictiveBackAnimation),
+                predictiveBackExitDirection = PredictiveBackExitDirection.fromValueOrDefault(appSettings.predictiveBackExitDirection),
             )
         }
     }
@@ -186,6 +194,21 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
     fun setDynamicColor(enabled: Boolean) {
         appSettings.dynamicColor = enabled
         _state.update { it.copy(dynamicColor = enabled) }
+    }
+
+    fun setMiuixTransitionAnimation(enabled: Boolean) {
+        appSettings.miuixTransitionAnimation = enabled
+        _state.update { it.copy(miuixTransitionAnimation = enabled) }
+    }
+
+    fun setPredictiveBackAnimation(anim: PredictiveBackAnimation) {
+        appSettings.predictiveBackAnimation = anim.value
+        _state.update { it.copy(predictiveBackAnimation = anim) }
+    }
+
+    fun setPredictiveBackExitDirection(direction: PredictiveBackExitDirection) {
+        appSettings.predictiveBackExitDirection = direction.value
+        _state.update { it.copy(predictiveBackExitDirection = direction) }
     }
 
     override fun onCleared() {

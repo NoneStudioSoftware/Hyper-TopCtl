@@ -22,9 +22,9 @@ enum class BottomBarDestination(@get:StringRes val label: Int) {
 }
 
 @Composable
-fun BottomBar() {
+fun BottomBar(isBottomBar: Boolean = true) {
     when (LocalUiMode.current) {
         UiMode.Miuix -> BottomBarMiuix()
-        UiMode.Material -> BottomBarMaterial()
+        UiMode.Material -> BottomBarMaterial(isBottomBar = isBottomBar)
     }
 }

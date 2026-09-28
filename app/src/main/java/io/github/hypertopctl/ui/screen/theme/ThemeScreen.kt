@@ -2,6 +2,8 @@ package io.github.hypertopctl.ui.screen.theme
 
 import androidx.compose.runtime.Composable
 import io.github.hypertopctl.ui.MainUiState
+import io.github.hypertopctl.ui.animation.predictiveback.PredictiveBackAnimation
+import io.github.hypertopctl.ui.animation.predictiveback.PredictiveBackExitDirection
 import io.github.hypertopctl.ui.theme.LocalUiMode
 import io.github.hypertopctl.ui.theme.UiMode
 
@@ -9,7 +11,7 @@ import io.github.hypertopctl.ui.theme.UiMode
  * Theme settings screen. Miuix side is aligned with KernelSU Manager's ColorPalette screen;
  * Material side is aligned with ReSukiSU Manager's ThemeSettings screen.
  *
- * The UI framework switch (Miuix / Material) lives here, at the top of the theme settings.
+ * The UI framework switch (Miuix / Material) and predictive back animation configuration live here.
  */
 @Composable
 fun ThemeScreen(
@@ -22,6 +24,9 @@ fun ThemeScreen(
     onKeyColorChange: (Int) -> Unit,
     onColorStyleChange: (String) -> Unit,
     onColorSpecChange: (String) -> Unit,
+    onMiuixTransitionAnimationChange: (Boolean) -> Unit = {},
+    onPredictiveBackAnimationChange: (PredictiveBackAnimation) -> Unit = {},
+    onPredictiveBackExitDirectionChange: (PredictiveBackExitDirection) -> Unit = {},
 ) {
     when (LocalUiMode.current) {
         UiMode.Miuix -> ThemeMiuix(
@@ -33,6 +38,7 @@ fun ThemeScreen(
             onKeyColorChange = onKeyColorChange,
             onColorStyleChange = onColorStyleChange,
             onColorSpecChange = onColorSpecChange,
+            onMiuixTransitionAnimationChange = onMiuixTransitionAnimationChange,
         )
 
         UiMode.Material -> ThemeMaterial(
@@ -44,6 +50,8 @@ fun ThemeScreen(
             onKeyColorChange = onKeyColorChange,
             onColorStyleChange = onColorStyleChange,
             onColorSpecChange = onColorSpecChange,
+            onPredictiveBackAnimationChange = onPredictiveBackAnimationChange,
+            onPredictiveBackExitDirectionChange = onPredictiveBackExitDirectionChange,
         )
     }
 }

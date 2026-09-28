@@ -48,7 +48,6 @@ fun TopCtlMiuix(
                 scrollBehavior = scrollBehavior,
             )
         },
-        popupHost = { },
         contentWindowInsets = WindowInsets.systemBars
             .add(WindowInsets.displayCutout)
             .only(WindowInsetsSides.Horizontal),

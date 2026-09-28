@@ -1,18 +1,23 @@
 package io.github.hypertopctl.ui.screen.theme
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ColorLens
-import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.DesignServices
-import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.Style
+import androidx.compose.material.icons.twotone.Animation
+import androidx.compose.material.icons.twotone.ColorLens
+import androidx.compose.material.icons.twotone.DarkMode
+import androidx.compose.material.icons.twotone.DesignServices
+import androidx.compose.material.icons.twotone.Palette
+import androidx.compose.material.icons.twotone.Style
+import androidx.compose.material.icons.twotone.SwapHoriz
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -38,6 +43,9 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import io.github.hypertopctl.R
 import io.github.hypertopctl.lsp.UiFrameworkValue
 import io.github.hypertopctl.ui.MainUiState
+import io.github.hypertopctl.ui.animation.predictiveback.PredictiveBackAnimation
+import io.github.hypertopctl.ui.animation.predictiveback.PredictiveBackExitDirection
+import io.github.hypertopctl.ui.component.settings.AppBackButton
 import io.github.hypertopctl.ui.component.settings.SegmentedColumn
 import io.github.hypertopctl.ui.component.settings.SettingsBaseWidget
 import io.github.hypertopctl.ui.component.settings.SettingsChooseWidget
@@ -55,6 +63,8 @@ fun ThemeMaterial(
     onKeyColorChange: (Int) -> Unit,
     onColorStyleChange: (String) -> Unit,
     onColorSpecChange: (String) -> Unit,
+    onPredictiveBackAnimationChange: (PredictiveBackAnimation) -> Unit = {},
+    onPredictiveBackExitDirectionChange: (PredictiveBackExitDirection) -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
@@ -65,29 +75,37 @@ fun ThemeMaterial(
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         topBar = {
             LargeFlexibleTopAppBar(
                 title = { Text(stringResource(R.string.theme_settings)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                ),
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
-                    }
+                    AppBackButton(onClick = onBack)
                 },
+                windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 scrollBehavior = scrollBehavior,
             )
         },
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(0.dp),
         ) {
             item {
-                SegmentedColumn(title = stringResource(R.string.settings_category_appearance)) {
+                Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
+            }
+            item {
+                SegmentedColumn(
+                    title = stringResource(R.string.settings_category_appearance),
+                ) {
                     // UI framework: Miuix / Material
                     item {
                         SettingsChooseWidget(
-                            icon = Icons.Rounded.Palette,
+                            icon = Icons.TwoTone.Palette,
                             title = stringResource(R.string.ui_framework),
                             items = listOf(
                                 stringResource(R.string.ui_framework_miuix),
@@ -105,7 +123,7 @@ fun ThemeMaterial(
                     // Theme mode
                     item {
                         SettingsChooseWidget(
-                            icon = Icons.Rounded.DarkMode,
+                            icon = Icons.TwoTone.DarkMode,
                             title = stringResource(R.string.theme_mode),
                             items = listOf(
                                 stringResource(R.string.theme_follow_system),
@@ -122,7 +140,7 @@ fun ThemeMaterial(
                         expanded = !state.dynamicColor,
                         topContent = {
                             SettingsSwitchWidget(
-                                icon = Icons.Rounded.ColorLens,
+                                icon = Icons.TwoTone.ColorLens,
                                 title = stringResource(R.string.dynamic_color_title),
                                 description = stringResource(R.string.dynamic_color_summary),
                                 checked = state.dynamicColor,
@@ -132,7 +150,7 @@ fun ThemeMaterial(
                         bottomContent = {
                             item {
                                 SettingsBaseWidget(
-                                    icon = Icons.Rounded.Palette,
+                                    icon = Icons.TwoTone.Palette,
                                     title = stringResource(R.string.theme_color),
                                     description = "#%06X".format(0xFFFFFF and state.keyColor),
                                     onClick = { showColorDialog = true },
@@ -143,7 +161,7 @@ fun ThemeMaterial(
                                                 .then(Modifier)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Palette,
+                                                imageVector = Icons.TwoTone.Palette,
                                                 contentDescription = null,
                                                 tint = if (state.keyColor == 0) MaterialTheme.colorScheme.primary
                                                 else Color(state.keyColor),
@@ -158,7 +176,7 @@ fun ThemeMaterial(
                     // Palette style
                     item {
                         SettingsChooseWidget(
-                            icon = Icons.Rounded.Style,
+                            icon = Icons.TwoTone.Style,
                             title = stringResource(R.string.dynamic_palette_style),
                             items = paletteStyles.map { it.displayName() },
                             selectedIndex = paletteStyles.indexOfFirst { it.name == state.colorStyle }
@@ -170,12 +188,55 @@ fun ThemeMaterial(
                     // Color spec
                     item {
                         SettingsChooseWidget(
-                            icon = Icons.Rounded.DesignServices,
+                            icon = Icons.TwoTone.DesignServices,
                             title = stringResource(R.string.dynamic_color_spec),
                             items = colorSpecs.map { it.displayName() },
                             selectedIndex = colorSpecs.indexOfFirst { it.name == state.colorSpec }
                                 .coerceAtLeast(0),
                             onSelectedIndexChange = { onColorSpecChange(colorSpecs[it].name) },
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            // Predictive back & secondary screen transitions
+            item {
+                SegmentedColumn(
+                    title = stringResource(R.string.predictive_back_settings),
+                ) {
+                    item {
+                        val anims = PredictiveBackAnimation.entries
+                        SettingsChooseWidget(
+                            icon = Icons.TwoTone.Animation,
+                            title = stringResource(R.string.predictive_back_animation),
+                            items = anims.map { anim ->
+                                when (anim) {
+                                    PredictiveBackAnimation.None -> stringResource(R.string.predictive_back_animation_none)
+                                    PredictiveBackAnimation.AOSP -> stringResource(R.string.predictive_back_animation_aosp)
+                                    PredictiveBackAnimation.Scale -> stringResource(R.string.predictive_back_animation_scale)
+                                    PredictiveBackAnimation.KernelSUClassic -> stringResource(R.string.predictive_back_animation_ksu_classic)
+                                }
+                            },
+                            selectedIndex = anims.indexOf(state.predictiveBackAnimation).coerceAtLeast(0),
+                            onSelectedIndexChange = { onPredictiveBackAnimationChange(anims[it]) },
+                        )
+                    }
+
+                    item(visible = state.predictiveBackAnimation == PredictiveBackAnimation.Scale) {
+                        val directions = PredictiveBackExitDirection.entries
+                        SettingsChooseWidget(
+                            icon = Icons.TwoTone.SwapHoriz,
+                            title = stringResource(R.string.predictive_back_exit_direction),
+                            items = directions.map { dir ->
+                                when (dir) {
+                                    PredictiveBackExitDirection.FOLLOW_GESTURE -> stringResource(R.string.predictive_back_exit_direction_follow_gesture)
+                                    PredictiveBackExitDirection.ALWAYS_RIGHT -> stringResource(R.string.predictive_back_exit_direction_always_right)
+                                    PredictiveBackExitDirection.ALWAYS_LEFT -> stringResource(R.string.predictive_back_exit_direction_always_left)
+                                }
+                            },
+                            selectedIndex = directions.indexOf(state.predictiveBackExitDirection).coerceAtLeast(0),
+                            onSelectedIndexChange = { onPredictiveBackExitDirectionChange(directions[it]) },
                         )
                     }
                 }

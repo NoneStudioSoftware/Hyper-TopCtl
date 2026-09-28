@@ -18,9 +18,14 @@ import androidx.compose.ui.unit.dp
 import io.github.hypertopctl.R
 import io.github.hypertopctl.ui.MainUiState
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Info
+import top.yukonga.miuix.kmp.icon.extended.Theme
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
@@ -41,7 +46,6 @@ fun SettingsMiuix(
                 scrollBehavior = scrollBehavior,
             )
         },
-        popupHost = { },
         contentWindowInsets = WindowInsets.systemBars
             .add(WindowInsets.displayCutout)
             .only(WindowInsetsSides.Horizontal),
@@ -57,15 +61,48 @@ fun SettingsMiuix(
             overscrollEffect = null,
         ) {
             item {
-                Card(Modifier.fillMaxWidth().padding(top = 12.dp)) {
+                SmallTitle(
+                    text = stringResource(R.string.settings_category_appearance),
+                    modifier = Modifier.padding(top = 12.dp),
+                )
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
                     ArrowPreference(
                         title = stringResource(R.string.settings_theme_entry),
                         summary = stringResource(R.string.settings_theme_entry_desc),
+                        startAction = {
+                            Icon(
+                                imageVector = MiuixIcons.Theme,
+                                modifier = Modifier.padding(end = 6.dp),
+                                contentDescription = stringResource(R.string.settings_theme_entry),
+                                tint = colorScheme.onBackground,
+                            )
+                        },
                         onClick = onOpenTheme,
                     )
+                }
+            }
+
+            item {
+                SmallTitle(
+                    text = stringResource(R.string.settings_category_about),
+                    modifier = Modifier.padding(top = 12.dp),
+                )
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
                     ArrowPreference(
                         title = stringResource(R.string.about),
                         summary = stringResource(R.string.about_entry_desc),
+                        startAction = {
+                            Icon(
+                                imageVector = MiuixIcons.Info,
+                                modifier = Modifier.padding(end = 6.dp),
+                                contentDescription = stringResource(R.string.about),
+                                tint = colorScheme.onBackground,
+                            )
+                        },
                         onClick = onOpenAbout,
                     )
                 }

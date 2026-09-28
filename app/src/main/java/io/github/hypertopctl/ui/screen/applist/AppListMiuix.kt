@@ -41,7 +41,6 @@ fun AppListMiuix(@Suppress("UNUSED_PARAMETER") state: MainUiState) {
                 scrollBehavior = scrollBehavior,
             )
         },
-        popupHost = { },
         contentWindowInsets = WindowInsets.systemBars
             .add(WindowInsets.displayCutout)
             .only(WindowInsetsSides.Horizontal),

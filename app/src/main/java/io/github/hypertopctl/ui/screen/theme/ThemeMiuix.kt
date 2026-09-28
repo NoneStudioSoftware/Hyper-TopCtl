@@ -15,13 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Colorize
+import androidx.compose.material.icons.rounded.ColorLens
+import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.DesignServices
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Style
-import androidx.compose.material.icons.rounded.Wallpaper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.materialkolor.PaletteStyle
@@ -36,14 +37,16 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 @Composable
 fun ThemeMiuix(
@@ -55,6 +58,7 @@ fun ThemeMiuix(
     onKeyColorChange: (Int) -> Unit,
     onColorStyleChange: (String) -> Unit,
     onColorSpecChange: (String) -> Unit,
+    onMiuixTransitionAnimationChange: (Boolean) -> Unit = {},
 ) {
     val scrollBehavior = MiuixScrollBehavior()
     val colorMode = ColorMode.fromValue(state.colorMode)
@@ -84,7 +88,7 @@ fun ThemeMiuix(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = null,
                             tint = colorScheme.onBackground,
                         )
@@ -93,7 +97,6 @@ fun ThemeMiuix(
                 scrollBehavior = scrollBehavior,
             )
         },
-        popupHost = { },
         contentWindowInsets = WindowInsets.systemBars
             .add(WindowInsets.displayCutout)
             .only(WindowInsetsSides.Horizontal),
@@ -155,7 +158,7 @@ fun ThemeMiuix(
                         onCheckedChange = onMiuixMonetChange,
                         startAction = {
                             Icon(
-                                imageVector = Icons.Rounded.Wallpaper,
+                                imageVector = Icons.Rounded.ColorLens,
                                 contentDescription = null,
                                 modifier = Modifier.padding(end = 6.dp),
                                 tint = colorScheme.onBackground,
@@ -172,7 +175,7 @@ fun ThemeMiuix(
                                 onSelectedIndexChange = { onKeyColorChange(colorValues[it]) },
                                 startAction = {
                                     Icon(
-                                        imageVector = Icons.Rounded.Colorize,
+                                        imageVector = Icons.Rounded.Palette,
                                         contentDescription = null,
                                         modifier = Modifier.padding(end = 6.dp),
                                         tint = colorScheme.onBackground,
@@ -216,6 +219,22 @@ fun ThemeMiuix(
                             }
                         }
                     }
+                }
+            }
+
+            // Transition animation (Miuix side: simple toggle)
+            item {
+                SmallTitle(
+                    text = stringResource(R.string.predictive_back_settings),
+                    modifier = Modifier.padding(top = 12.dp),
+                )
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    SwitchPreference(
+                        title = stringResource(R.string.settings_transition_animation),
+                        summary = stringResource(R.string.settings_transition_animation_desc),
+                        checked = state.miuixTransitionAnimation,
+                        onCheckedChange = onMiuixTransitionAnimationChange,
+                    )
                 }
             }
             item {

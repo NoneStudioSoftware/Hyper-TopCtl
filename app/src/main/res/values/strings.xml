@@ -46,7 +46,6 @@
     <string name="home_hook_target">Hook 目标</string>
 
     <!-- Settings categories -->
-    <string name="settings_category_appearance">外观</string>
     <string name="settings_category_about">关于</string>
     <string name="settings_version">版本</string>
 
@@ -90,6 +89,21 @@
     <string name="settings_theme_entry">主题设置</string>
     <string name="settings_theme_entry_desc">界面风格、主题模式与配色</string>
     <string name="about_entry_desc">版本、模块信息与 Hook 说明</string>
+    <string name="settings_category_appearance">界面与外观</string>
+
+    <!-- Predictive back & transition animation -->
+    <string name="settings_transition_animation">预见式返回动画</string>
+    <string name="settings_transition_animation_desc">启用二级页面的预见式手势返回与进入动画</string>
+    <string name="predictive_back_settings">返回与转场动画</string>
+    <string name="predictive_back_animation">二级页面转场动画</string>
+    <string name="predictive_back_exit_direction">退出方向</string>
+    <string name="predictive_back_animation_none">无</string>
+    <string name="predictive_back_animation_aosp">AOSP 预测性返回</string>
+    <string name="predictive_back_animation_scale">缩放退出</string>
+    <string name="predictive_back_animation_ksu_classic">KernelSU 经典</string>
+    <string name="predictive_back_exit_direction_follow_gesture">跟随手势</string>
+    <string name="predictive_back_exit_direction_always_right">始终向右</string>
+    <string name="predictive_back_exit_direction_always_left">始终向左</string>
 
     <!-- App list page -->
     <string name="applist_title">应用列表</string>

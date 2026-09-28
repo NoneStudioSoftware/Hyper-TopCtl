@@ -48,6 +48,18 @@ class AppSettingsRepository(context: Context) {
         get() = prefs.getBoolean(KEY_DYNAMIC_COLOR, true)
         set(value) = prefs.edit { putBoolean(KEY_DYNAMIC_COLOR, value) }
 
+    var miuixTransitionAnimation: Boolean
+        get() = prefs.getBoolean(KEY_MIUIX_TRANSITION_ANIMATION, true)
+        set(value) = prefs.edit { putBoolean(KEY_MIUIX_TRANSITION_ANIMATION, value) }
+
+    var predictiveBackAnimation: String
+        get() = prefs.getString(KEY_PREDICTIVE_BACK_ANIMATION, "scale") ?: "scale"
+        set(value) = prefs.edit { putString(KEY_PREDICTIVE_BACK_ANIMATION, value) }
+
+    var predictiveBackExitDirection: String
+        get() = prefs.getString(KEY_PREDICTIVE_BACK_EXIT_DIRECTION, "follow_gesture") ?: "follow_gesture"
+        set(value) = prefs.edit { putString(KEY_PREDICTIVE_BACK_EXIT_DIRECTION, value) }
+
     /** Register a listener so Compose can recompose when any theme pref changes. */
     fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
         prefs.registerOnSharedPreferenceChangeListener(listener)
@@ -65,5 +77,8 @@ class AppSettingsRepository(context: Context) {
         private const val KEY_COLOR_STYLE = "color_style"
         private const val KEY_COLOR_SPEC = "color_spec"
         private const val KEY_DYNAMIC_COLOR = "dynamic_color"
+        private const val KEY_MIUIX_TRANSITION_ANIMATION = "miuix_transition_animation"
+        private const val KEY_PREDICTIVE_BACK_ANIMATION = "predictive_back_animation"
+        private const val KEY_PREDICTIVE_BACK_EXIT_DIRECTION = "predictive_back_exit_direction"
     }
 }
