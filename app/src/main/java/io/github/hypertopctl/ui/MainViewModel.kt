@@ -12,6 +12,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 @Immutable
+data class DeviceInfo(
+    val model: String,
+    val androidRelease: String,
+    val sdk: Int,
+    val hyperOsVersion: String?,
+)
+
+@Immutable
 data class MainUiState(
     val active: Boolean = false,
     val frameworkName: String? = null,
@@ -19,6 +27,19 @@ data class MainUiState(
     val listMode: ListMode = ListMode.WHITELIST,
     val packages: Set<String> = emptySet(),
     val uiFramework: String = UiFrameworkValue.DEFAULT,
+    val device: DeviceInfo = readDeviceInfo(),
+)
+
+private fun readDeviceInfo(): DeviceInfo = DeviceInfo(
+    model = android.os.Build.MODEL,
+    androidRelease = android.os.Build.VERSION.RELEASE,
+    sdk = android.os.Build.VERSION.SDK_INT,
+    hyperOsVersion = runCatching {
+        @Suppress("PrivateApi")
+        val get = Class.forName("android.os.SystemProperties")
+            .getMethod("get", String::class.java)
+        (get.invoke(null, "ro.mi.os.version.name") as? String)?.takeIf { it.isNotBlank() }
+    }.getOrNull(),
 )
 
 class MainViewModel : ViewModel(), App.ServiceStateListener {

@@ -4,11 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.github.hypertopctl.ui.screen.MainScreen
+import io.github.hypertopctl.ui.component.bottombar.BottomBar
+import io.github.hypertopctl.ui.component.bottombar.BottomBarDestination
+import io.github.hypertopctl.ui.screen.applist.AppListScreen
+import io.github.hypertopctl.ui.screen.home.HomeScreen
+import io.github.hypertopctl.ui.screen.settings.SettingsScreen
+import io.github.hypertopctl.ui.screen.topctl.TopCtlScreen
 import io.github.hypertopctl.ui.theme.HyperTopCtlTheme
 import io.github.hypertopctl.ui.theme.LocalUiMode
 import io.github.hypertopctl.ui.theme.UiMode
@@ -22,17 +36,64 @@ class MainActivity : ComponentActivity() {
             val state by vm.state.collectAsStateWithLifecycle()
             val uiMode = UiMode.fromValue(state.uiFramework)
 
-            CompositionLocalProvider(LocalUiMode provides uiMode) {
+            val pagerState = rememberPagerState(pageCount = { BottomBarDestination.PAGE_COUNT })
+            val mainPagerState = rememberMainPagerState(pagerState)
+            LaunchedEffect(pagerState) {
+                snapshotFlow { pagerState.currentPage }.collect { mainPagerState.syncPage() }
+            }
+
+            CompositionLocalProvider(
+                LocalUiMode provides uiMode,
+                LocalMainPagerState provides mainPagerState,
+            ) {
                 HyperTopCtlTheme(uiMode = uiMode) {
-                    MainScreen(
-                        uiMode = uiMode,
-                        state = state,
-                        onGlobalEnabledChange = vm::setGlobalEnabled,
-                        onListModeChange = vm::setListMode,
-                        onUiFrameworkChange = vm::setUiFramework,
-                    )
+                    MainScaffold(bottomBar = { BottomBar() }) { innerPadding ->
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                        ) { page ->
+                            when (BottomBarDestination.entries[page]) {
+                                BottomBarDestination.Home -> HomeScreen(state)
+                                BottomBarDestination.TopCtl -> TopCtlScreen(
+                                    state = state,
+                                    onGlobalEnabledChange = vm::setGlobalEnabled,
+                                    onListModeChange = vm::setListMode,
+                                )
+
+                                BottomBarDestination.AppList -> AppListScreen(state)
+                                BottomBarDestination.Settings -> SettingsScreen(
+                                    state = state,
+                                    onUiFrameworkChange = vm::setUiFramework,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+/**
+ * Provides a framework-appropriate [Scaffold] hosting the shared bottom bar and pager content.
+ * Miuix and Material each have their own Scaffold; dispatching here keeps insets/behavior native.
+ */
+@Composable
+private fun MainScaffold(
+    bottomBar: @Composable () -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    when (LocalUiMode.current) {
+        UiMode.Miuix -> top.yukonga.miuix.kmp.basic.Scaffold(
+            bottomBar = bottomBar,
+            content = content,
+        )
+
+        UiMode.Material -> androidx.compose.material3.Scaffold(
+            bottomBar = bottomBar,
+            content = content,
+        )
     }
 }
