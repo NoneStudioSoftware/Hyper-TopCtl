@@ -1,92 +1,72 @@
 package io.github.hypertopctl.ui.screen.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import io.github.hypertopctl.BuildConfig
 import io.github.hypertopctl.R
-import io.github.hypertopctl.lsp.UiFrameworkValue
 import io.github.hypertopctl.ui.MainUiState
-import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTitle
-import top.yukonga.miuix.kmp.basic.SmallTopAppBar
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
+import top.yukonga.miuix.kmp.utils.overScrollVertical
+import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
 fun SettingsMiuix(
-    state: MainUiState,
-    onUiFrameworkChange: (String) -> Unit,
+    @Suppress("UNUSED_PARAMETER") state: MainUiState,
+    onOpenTheme: () -> Unit,
+    onOpenAbout: () -> Unit,
 ) {
+    val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        topBar = { SmallTopAppBar(title = stringResource(R.string.nav_settings)) },
-    ) { padding ->
-        Column(
+        topBar = {
+            TopAppBar(
+                color = colorScheme.surface,
+                title = stringResource(R.string.nav_settings),
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        popupHost = { },
+        contentWindowInsets = WindowInsets.systemBars
+            .add(WindowInsets.displayCutout)
+            .only(WindowInsetsSides.Horizontal),
+    ) { innerPadding ->
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .fillMaxHeight()
+                .scrollEndHaptic()
+                .overScrollVertical()
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            contentPadding = innerPadding,
+            overscrollEffect = null,
         ) {
-            SmallTitle(stringResource(R.string.settings_category_appearance))
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(stringResource(R.string.ui_framework))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TextButton(
-                            text = stringResource(R.string.ui_framework_miuix),
-                            onClick = { onUiFrameworkChange(UiFrameworkValue.MIUIX) },
-                            modifier = Modifier.weight(1f),
-                            colors = if (state.uiFramework == UiFrameworkValue.MIUIX) {
-                                ButtonDefaults.textButtonColorsPrimary()
-                            } else {
-                                ButtonDefaults.textButtonColors()
-                            },
-                        )
-                        TextButton(
-                            text = stringResource(R.string.ui_framework_material),
-                            onClick = { onUiFrameworkChange(UiFrameworkValue.MATERIAL) },
-                            modifier = Modifier.weight(1f),
-                            colors = if (state.uiFramework == UiFrameworkValue.MATERIAL) {
-                                ButtonDefaults.textButtonColorsPrimary()
-                            } else {
-                                ButtonDefaults.textButtonColors()
-                            },
-                        )
-                    }
-                }
-            }
-
-            SmallTitle(stringResource(R.string.settings_category_about))
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(stringResource(R.string.settings_version))
-                        Text(
-                            "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-                            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-                        )
-                    }
-                    Text(
-                        stringResource(R.string.app_description),
-                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+            item {
+                Card(Modifier.fillMaxWidth().padding(top = 12.dp)) {
+                    ArrowPreference(
+                        title = stringResource(R.string.settings_theme_entry),
+                        summary = stringResource(R.string.settings_theme_entry_desc),
+                        onClick = onOpenTheme,
                     )
-                    Text(
-                        stringResource(R.string.about_desc),
-                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                    ArrowPreference(
+                        title = stringResource(R.string.about),
+                        summary = stringResource(R.string.about_entry_desc),
+                        onClick = onOpenAbout,
                     )
                 }
             }

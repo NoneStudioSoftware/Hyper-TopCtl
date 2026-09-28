@@ -16,6 +16,11 @@ import kotlin.concurrent.Volatile
 class App : Application(), XposedServiceHelper.OnServiceListener {
 
     companion object {
+        /** Application context, available from onCreate onward, for local settings access. */
+        @Volatile
+        lateinit var instance: App
+            private set
+
         @Volatile
         var service: XposedService? = null
             private set
@@ -42,6 +47,7 @@ class App : Application(), XposedServiceHelper.OnServiceListener {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         XposedServiceHelper.registerListener(this)
     }
 

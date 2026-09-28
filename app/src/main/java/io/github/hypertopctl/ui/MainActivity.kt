@@ -2,8 +2,13 @@ package io.github.hypertopctl.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,19 +18,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.hypertopctl.ui.component.bottombar.BottomBar
 import io.github.hypertopctl.ui.component.bottombar.BottomBarDestination
+import io.github.hypertopctl.ui.screen.about.AboutScreen
 import io.github.hypertopctl.ui.screen.applist.AppListScreen
 import io.github.hypertopctl.ui.screen.home.HomeScreen
 import io.github.hypertopctl.ui.screen.settings.SettingsScreen
+import io.github.hypertopctl.ui.screen.theme.ThemeScreen
 import io.github.hypertopctl.ui.screen.topctl.TopCtlScreen
 import io.github.hypertopctl.ui.theme.HyperTopCtlTheme
 import io.github.hypertopctl.ui.theme.LocalUiMode
 import io.github.hypertopctl.ui.theme.UiMode
+
+private enum class SubScreen { None, Theme, About }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,31 +54,57 @@ class MainActivity : ComponentActivity() {
                 snapshotFlow { pagerState.currentPage }.collect { mainPagerState.syncPage() }
             }
 
+            var subScreen by remember { mutableStateOf(SubScreen.None) }
+
             CompositionLocalProvider(
                 LocalUiMode provides uiMode,
                 LocalMainPagerState provides mainPagerState,
             ) {
-                HyperTopCtlTheme(uiMode = uiMode) {
-                    MainScaffold(bottomBar = { BottomBar() }) { innerPadding ->
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                        ) { page ->
-                            when (BottomBarDestination.entries[page]) {
-                                BottomBarDestination.Home -> HomeScreen(state)
-                                BottomBarDestination.TopCtl -> TopCtlScreen(
-                                    state = state,
-                                    onGlobalEnabledChange = vm::setGlobalEnabled,
-                                    onListModeChange = vm::setListMode,
-                                )
+                HyperTopCtlTheme(uiMode = uiMode, settings = state.toThemeSettings()) {
+                    BackHandler(enabled = subScreen != SubScreen.None) { subScreen = SubScreen.None }
+                    AnimatedContent(
+                        targetState = subScreen,
+                        transitionSpec = { fadeIn() togetherWith fadeOut() },
+                        label = "root_nav",
+                    ) { current ->
+                        when (current) {
+                            SubScreen.Theme -> ThemeScreen(
+                                state = state,
+                                onBack = { subScreen = SubScreen.None },
+                                onUiFrameworkChange = vm::setUiFramework,
+                                onThemeModeChange = vm::setThemeMode,
+                                onMiuixMonetChange = vm::setMiuixMonet,
+                                onDynamicColorChange = vm::setDynamicColor,
+                                onKeyColorChange = vm::setKeyColor,
+                                onColorStyleChange = vm::setColorStyle,
+                                onColorSpecChange = vm::setColorSpec,
+                            )
 
-                                BottomBarDestination.AppList -> AppListScreen(state)
-                                BottomBarDestination.Settings -> SettingsScreen(
-                                    state = state,
-                                    onUiFrameworkChange = vm::setUiFramework,
-                                )
+                            SubScreen.About -> AboutScreen(onBack = { subScreen = SubScreen.None })
+
+                            SubScreen.None -> MainScaffold(bottomBar = { BottomBar() }) { innerPadding ->
+                                HorizontalPager(
+                                    state = pagerState,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(innerPadding),
+                                ) { page ->
+                                    when (BottomBarDestination.entries[page]) {
+                                        BottomBarDestination.Home -> HomeScreen(state)
+                                        BottomBarDestination.TopCtl -> TopCtlScreen(
+                                            state = state,
+                                            onGlobalEnabledChange = vm::setGlobalEnabled,
+                                            onListModeChange = vm::setListMode,
+                                        )
+
+                                        BottomBarDestination.AppList -> AppListScreen(state)
+                                        BottomBarDestination.Settings -> SettingsScreen(
+                                            state = state,
+                                            onOpenTheme = { subScreen = SubScreen.Theme },
+                                            onOpenAbout = { subScreen = SubScreen.About },
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

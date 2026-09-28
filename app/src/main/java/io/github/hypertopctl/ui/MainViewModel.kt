@@ -2,10 +2,15 @@ package io.github.hypertopctl.ui
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
+import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamiccolor.ColorSpec
 import io.github.hypertopctl.App
+import io.github.hypertopctl.data.AppSettingsRepository
 import io.github.hypertopctl.data.SettingsRepository
 import io.github.hypertopctl.lsp.ListMode
 import io.github.hypertopctl.lsp.UiFrameworkValue
+import io.github.hypertopctl.ui.theme.AppThemeSettings
+import io.github.hypertopctl.ui.theme.ColorMode
 import io.github.libxposed.service.XposedService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,7 +33,25 @@ data class MainUiState(
     val packages: Set<String> = emptySet(),
     val uiFramework: String = UiFrameworkValue.DEFAULT,
     val device: DeviceInfo = readDeviceInfo(),
-)
+    // Theme configuration (local, app-only)
+    val colorMode: Int = 0,
+    val keyColor: Int = 0,
+    val colorStyle: String = PaletteStyle.TonalSpot.name,
+    val colorSpec: String = ColorSpec.SpecVersion.SPEC_2025.name,
+    val dynamicColor: Boolean = true,
+) {
+    /** Build the immutable snapshot consumed by the theme layer. */
+    fun toThemeSettings(): AppThemeSettings = AppThemeSettings(
+        uiFramework = uiFramework,
+        colorMode = ColorMode.fromValue(colorMode),
+        keyColor = keyColor,
+        paletteStyle = runCatching { PaletteStyle.valueOf(colorStyle) }
+            .getOrDefault(PaletteStyle.TonalSpot),
+        colorSpec = runCatching { ColorSpec.SpecVersion.valueOf(colorSpec) }
+            .getOrDefault(ColorSpec.SpecVersion.SPEC_2025),
+        dynamicColor = dynamicColor,
+    )
+}
 
 private fun readDeviceInfo(): DeviceInfo = DeviceInfo(
     model = android.os.Build.MODEL,
@@ -47,10 +70,15 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
     private val _state = MutableStateFlow(MainUiState())
     val state = _state.asStateFlow()
 
+    /** Hook config (globalEnabled / listMode / packages) lives in the libxposed remote prefs. */
     private var repo: SettingsRepository = SettingsRepository(App.service)
+
+    /** UI framework + theme are app-only, persisted locally. */
+    private val appSettings = AppSettingsRepository(App.instance)
 
     init {
         App.addServiceStateListener(this, notifyImmediately = true)
+        loadLocalSettings()
     }
 
     override fun onServiceStateChanged(service: XposedService?) {
@@ -67,10 +95,24 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
                 globalEnabled = config.globalEnabled,
                 listMode = config.listMode,
                 packages = config.packages,
-                uiFramework = repo.readUiFramework(),
             )
         }
     }
+
+    private fun loadLocalSettings() {
+        _state.update {
+            it.copy(
+                uiFramework = appSettings.uiFramework,
+                colorMode = appSettings.colorMode,
+                keyColor = appSettings.keyColor,
+                colorStyle = appSettings.colorStyle,
+                colorSpec = appSettings.colorSpec,
+                dynamicColor = appSettings.dynamicColor,
+            )
+        }
+    }
+
+    // ---- Hook config setters (remote prefs) ----
 
     fun setGlobalEnabled(value: Boolean) {
         repo.setGlobalEnabled(value)
@@ -94,9 +136,56 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
         setPackages(next)
     }
 
+    // ---- UI framework + theme setters (local prefs) ----
+
     fun setUiFramework(value: String) {
-        repo.setUiFramework(value)
+        appSettings.uiFramework = value
         _state.update { it.copy(uiFramework = value) }
+    }
+
+    /** Set light/dark preference (0=system,1=light,2=dark), preserving the Monet flag. */
+    fun setThemeMode(mode: Int) {
+        val current = ColorMode.fromValue(_state.value.colorMode)
+        val newValue = if (current.isMonet) {
+            ColorMode.fromValue(mode).toMonetMode()
+        } else {
+            mode
+        }
+        appSettings.colorMode = newValue
+        _state.update { it.copy(colorMode = newValue) }
+    }
+
+    /** Miuix side: toggle Monet (dynamic) on/off, preserving light/dark preference. */
+    fun setMiuixMonet(enabled: Boolean) {
+        val current = ColorMode.fromValue(_state.value.colorMode)
+        val newValue = if (enabled) current.toMonetMode() else current.toNonMonetMode()
+        appSettings.colorMode = newValue
+        _state.update { it.copy(colorMode = newValue) }
+    }
+
+    fun setColorMode(value: Int) {
+        appSettings.colorMode = value
+        _state.update { it.copy(colorMode = value) }
+    }
+
+    fun setKeyColor(argb: Int) {
+        appSettings.keyColor = argb
+        _state.update { it.copy(keyColor = argb) }
+    }
+
+    fun setColorStyle(name: String) {
+        appSettings.colorStyle = name
+        _state.update { it.copy(colorStyle = name) }
+    }
+
+    fun setColorSpec(name: String) {
+        appSettings.colorSpec = name
+        _state.update { it.copy(colorSpec = name) }
+    }
+
+    fun setDynamicColor(enabled: Boolean) {
+        appSettings.dynamicColor = enabled
+        _state.update { it.copy(dynamicColor = enabled) }
     }
 
     override fun onCleared() {

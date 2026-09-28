@@ -50,6 +50,47 @@
     <string name="settings_category_about">关于</string>
     <string name="settings_version">版本</string>
 
+    <!-- Theme settings (Miuix side, aligned with KernelSU) -->
+    <string name="settings_theme">主题</string>
+    <string name="settings_theme_mode_system">跟随系统</string>
+    <string name="settings_theme_mode_light">浅色</string>
+    <string name="settings_theme_mode_dark">深色</string>
+    <string name="settings_monet">启用 Monet 取色</string>
+    <string name="settings_key_color">主题色</string>
+    <string name="settings_key_color_default">默认</string>
+    <string name="settings_color_style">调色板样式</string>
+    <string name="settings_color_spec">色彩规格</string>
+    <string name="color_red">红</string>
+    <string name="color_pink">粉</string>
+    <string name="color_purple">紫</string>
+    <string name="color_deep_purple">深紫</string>
+    <string name="color_indigo">靛蓝</string>
+    <string name="color_blue">蓝</string>
+    <string name="color_cyan">青</string>
+    <string name="color_teal">蓝绿</string>
+    <string name="color_green">绿</string>
+    <string name="color_yellow">黄</string>
+    <string name="color_amber">琥珀</string>
+    <string name="color_orange">橙</string>
+    <string name="color_brown">棕</string>
+    <string name="color_blue_grey">蓝灰</string>
+    <string name="color_sakura">樱花</string>
+
+    <!-- Theme settings (MD3 side, aligned with ReSukiSU) -->
+    <string name="theme_settings">主题设置</string>
+    <string name="theme_mode">主题</string>
+    <string name="theme_follow_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="dynamic_color_title">动态取色</string>
+    <string name="dynamic_color_summary">使用系统主题的动态配色</string>
+    <string name="dynamic_palette_style">调色板样式</string>
+    <string name="dynamic_color_spec">色彩规格</string>
+    <string name="theme_color">主题色</string>
+    <string name="settings_theme_entry">主题设置</string>
+    <string name="settings_theme_entry_desc">界面风格、主题模式与配色</string>
+    <string name="about_entry_desc">版本、模块信息与 Hook 说明</string>
+
     <!-- App list page -->
     <string name="applist_title">应用列表</string>
     <string name="applist_placeholder_title">单应用配置（开发中）</string>

@@ -8,10 +8,11 @@ import io.github.hypertopctl.ui.theme.UiMode
 @Composable
 fun SettingsScreen(
     state: MainUiState,
-    onUiFrameworkChange: (String) -> Unit,
+    onOpenTheme: () -> Unit,
+    onOpenAbout: () -> Unit,
 ) {
     when (LocalUiMode.current) {
-        UiMode.Miuix -> SettingsMiuix(state, onUiFrameworkChange)
-        UiMode.Material -> SettingsMaterial(state, onUiFrameworkChange)
+        UiMode.Miuix -> SettingsMiuix(state, onOpenTheme, onOpenAbout)
+        UiMode.Material -> SettingsMaterial(state, onOpenTheme, onOpenAbout)
     }
 }

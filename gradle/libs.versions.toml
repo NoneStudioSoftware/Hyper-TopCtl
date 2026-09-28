@@ -7,7 +7,11 @@ kotlin = "2.4.20"
 coreKtx = "1.18.0"
 lifecycle = "2.10.0"
 activityCompose = "1.13.0"
-composeBom = "2026.02.01"
+composeBom = "2026.09.00"
+# material3 pinned to the expressive alpha (MaterialExpressiveTheme / LargeFlexibleTopAppBar /
+# MotionScheme), overriding the BOM. Matches KernelSU/ReSukiSU reference stack.
+material3 = "1.5.0-alpha28"
+materialKolor = "5.0.1"
 kotlinxCoroutines = "1.10.2"
 
 # Xposed (modern libxposed API 102 — LSPosed 2.x)
@@ -34,9 +38,12 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+
+# Dynamic color / Material You seed-based color scheme (materialkolor)
+material-kolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
 
 # Miuix
 miuix-ui = { module = "top.yukonga.miuix.kmp:miuix-ui-android", version.ref = "miuix" }
