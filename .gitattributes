@@ -1,0 +1,20 @@
+# Normalize text files to LF in the repository.
+* text=auto eol=lf
+
+# Shell scripts must stay LF or they break on Unix/CI.
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Windows-only scripts keep CRLF.
+gradlew.bat text eol=crlf
+*.bat text eol=crlf
+
+# Binaries must not be touched.
+*.jar binary
+*.apk binary
+*.aab binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.ttf binary
+*.so binary

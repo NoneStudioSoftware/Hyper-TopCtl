@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android / IDE
+*.iml
+.idea/
+.externalNativeBuild
+.cxx/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Reference clones — not part of the build
+/_refs/
+
+# Agent working files
+/.narrafork/

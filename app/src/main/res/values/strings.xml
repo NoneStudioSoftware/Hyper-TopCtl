@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hyper TopCtl</string>
+    <string name="app_description">管理小米 HyperOS/MIUI 状态栏「点击顶部回顶」机制</string>
+
+    <!-- Module status -->
+    <string name="status_active">模块已激活</string>
+    <string name="status_inactive">模块未激活</string>
+    <string name="status_active_desc">LSPosed 已连接，作用域 com.android.systemui</string>
+    <string name="status_inactive_desc">请在 LSPosed 中启用本模块并勾选「系统界面」作用域，然后重启 SystemUI</string>
+
+    <!-- Settings -->
+    <string name="settings_title">回顶控制</string>
+    <string name="global_enable">启用回顶拦截</string>
+    <string name="global_enable_desc">总开关。开启后按下方策略拦截「点击状态栏回顶」</string>
+    <string name="list_mode">名单模式</string>
+    <string name="list_mode_desc">决定名单内 App 的行为</string>
+    <string name="list_mode_blacklist">黑名单：仅名单内 App 拦截回顶</string>
+    <string name="list_mode_whitelist">白名单：名单内 App 不拦截，其余拦截</string>
+    <string name="app_list">应用名单</string>
+    <string name="app_list_empty">名单为空（当前对所有 App 生效）</string>
+
+    <!-- UI framework switch -->
+    <string name="ui_framework">界面风格</string>
+    <string name="ui_framework_miuix">Miuix (HyperOS)</string>
+    <string name="ui_framework_material">Material 3</string>
+
+    <!-- About -->
+    <string name="about">关于</string>
+    <string name="about_desc">Hook 点：com.android.systemui / MiuiInputManager.scrollToTop()</string>
+</resources>
