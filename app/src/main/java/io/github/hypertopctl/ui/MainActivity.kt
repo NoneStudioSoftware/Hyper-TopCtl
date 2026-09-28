@@ -10,6 +10,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
                                     state = pagerState,
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(innerPadding),
+                                        .padding(bottom = innerPadding.calculateBottomPadding()),
                                 ) { page ->
                                     when (BottomBarDestination.entries[page]) {
                                         BottomBarDestination.Home -> HomeScreen(state)
@@ -126,11 +127,13 @@ private fun MainScaffold(
     when (LocalUiMode.current) {
         UiMode.Miuix -> top.yukonga.miuix.kmp.basic.Scaffold(
             bottomBar = bottomBar,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             content = content,
         )
 
         UiMode.Material -> androidx.compose.material3.Scaffold(
             bottomBar = bottomBar,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             content = content,
         )
     }
