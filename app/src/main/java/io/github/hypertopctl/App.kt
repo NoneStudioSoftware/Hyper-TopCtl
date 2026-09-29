@@ -5,6 +5,9 @@ import android.content.pm.ApplicationInfo
 import android.os.Build
 import io.github.hypertopctl.data.AppSettingsRepository
 import io.github.libxposed.service.XposedService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import io.github.libxposed.service.XposedServiceHelper
 import java.util.concurrent.CopyOnWriteArraySet
@@ -17,6 +20,12 @@ import kotlin.concurrent.Volatile
  *
  * Pattern adapted from the reference project `fuck-hyperos-scroll-top`.
  */
+/**
+ * Startup phases gating the splash screen: Loading keeps the system splash on screen until the
+ * manager UI has finished its initial configuration load (see [ui.StartupSplashGate]).
+ */
+enum class StartupState { Loading, Ready }
+
 class App : Application(), XposedServiceHelper.OnServiceListener {
 
     companion object {
@@ -28,6 +37,16 @@ class App : Application(), XposedServiceHelper.OnServiceListener {
         @Volatile
         var service: XposedService? = null
             private set
+
+        private val startupStateFlow = MutableStateFlow(StartupState.Loading)
+
+        /** Observed by the splash screen keep-on-screen condition. */
+        val startupState: StateFlow<StartupState> = startupStateFlow.asStateFlow()
+
+        /** Called once initial configuration (service state + local settings) has been loaded. */
+        fun markStartupReady() {
+            startupStateFlow.value = StartupState.Ready
+        }
 
         private val listeners = CopyOnWriteArraySet<ServiceStateListener>()
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
@@ -59,8 +60,12 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        splashScreen.setKeepOnScreenCondition {
+            shouldKeepStartupSplash(App.startupState.value)
+        }
         setContent {
             val vm: MainViewModel = viewModel()
             val state by vm.state.collectAsStateWithLifecycle()
@@ -176,7 +181,10 @@ class MainActivity : ComponentActivity() {
                                             onListModeChange = vm::setListMode,
                                         )
 
-                                        BottomBarDestination.AppList -> AppListScreen(state)
+                                        BottomBarDestination.AppList -> AppListScreen(
+                                            state = state,
+                                            onTogglePackage = vm::togglePackage,
+                                        )
                                         BottomBarDestination.Settings -> SettingsScreen(
                                             state = state,
                                             onOpenTheme = { navigator.push(Route.Theme) },

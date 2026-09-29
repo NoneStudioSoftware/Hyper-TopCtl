@@ -71,33 +71,38 @@ fun TopCtlMaterial(
                 SegmentedColumn(
                     title = stringResource(R.string.nav_topctl),
                 ) {
-                    item {
-                        SettingsSwitchWidget(
-                            icon = Icons.TwoTone.PowerSettingsNew,
-                            title = stringResource(R.string.global_enable),
-                            description = stringResource(R.string.global_enable_desc),
-                            checked = state.globalEnabled,
-                            onCheckedChange = onGlobalEnabledChange,
-                        )
-                    }
-
-                    item {
-                        SettingsDropdownWidget(
-                            icon = Icons.TwoTone.FilterList,
-                            title = stringResource(R.string.list_mode),
-                            description = when (state.listMode) {
-                                ListMode.WHITELIST -> stringResource(R.string.list_mode_whitelist)
-                                ListMode.BLACKLIST -> stringResource(R.string.list_mode_blacklist)
-                            },
-                            data = listOf(
-                                stringResource(R.string.list_mode_whitelist),
-                                stringResource(R.string.list_mode_blacklist),
-                            ),
-                            choice = if (state.listMode == ListMode.WHITELIST) 0 else 1,
-                            onChoiceChange = { index ->
-                                onListModeChange(if (index == 0) ListMode.WHITELIST else ListMode.BLACKLIST)
-                            },
-                        )
+                    // List-mode selection collapses with ReSukiSU's expandable animation
+                    // whenever the master switch is off.
+                    expandableItem(
+                        expanded = state.globalEnabled,
+                        topContent = {
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.PowerSettingsNew,
+                                title = stringResource(R.string.global_enable),
+                                description = stringResource(R.string.global_enable_desc),
+                                checked = state.globalEnabled,
+                                onCheckedChange = onGlobalEnabledChange,
+                            )
+                        },
+                    ) {
+                        item {
+                            SettingsDropdownWidget(
+                                icon = Icons.TwoTone.FilterList,
+                                title = stringResource(R.string.list_mode),
+                                description = when (state.listMode) {
+                                    ListMode.WHITELIST -> stringResource(R.string.list_mode_whitelist)
+                                    ListMode.BLACKLIST -> stringResource(R.string.list_mode_blacklist)
+                                },
+                                data = listOf(
+                                    stringResource(R.string.list_mode_whitelist),
+                                    stringResource(R.string.list_mode_blacklist),
+                                ),
+                                choice = if (state.listMode == ListMode.WHITELIST) 0 else 1,
+                                onChoiceChange = { index ->
+                                    onListModeChange(if (index == 0) ListMode.WHITELIST else ListMode.BLACKLIST)
+                                },
+                            )
+                        }
                     }
                 }
             }

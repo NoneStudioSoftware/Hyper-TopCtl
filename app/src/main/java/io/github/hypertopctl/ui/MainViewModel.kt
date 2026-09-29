@@ -84,6 +84,9 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
     init {
         App.addServiceStateListener(this, notifyImmediately = true)
         loadLocalSettings()
+        // Initial configuration (service state + local settings) is synchronous: the splash
+        // screen can fade out once this constructor has finished and the first frame composes.
+        App.markStartupReady()
     }
 
     override fun onServiceStateChanged(service: XposedService?) {

@@ -5,4 +5,8 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="Theme.HyperTopCtl.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.HyperTopCtl</item>
+    </style>
 </resources>

@@ -107,6 +107,19 @@
 
     <!-- App list page -->
     <string name="applist_title">应用列表</string>
+    <string name="applist_search_hint">搜索应用或包名</string>
+    <string name="applist_show_system">显示系统应用</string>
+    <string name="applist_sort_name">按名称</string>
+    <string name="applist_sort_install_time">按安装时间</string>
+    <string name="applist_sort_update_time">按更新时间</string>
+    <string name="applist_reverse_order">反向排序</string>
+    <string name="applist_group_checked">已勾选 (%1$d)</string>
+    <string name="applist_group_unchecked">未勾选 (%1$d)</string>
+    <string name="applist_mode_hint_blacklist">黑名单模式：名单中的应用将拦截回顶</string>
+    <string name="applist_mode_hint_whitelist">白名单模式：名单中的应用不拦截回顶，其余应用拦截</string>
+    <string name="applist_selected_count">已选 %1$d 个应用</string>
+    <string name="applist_empty_result">没有匹配的应用</string>
+    <string name="applist_system_badge">系统</string>
     <string name="applist_placeholder_title">单应用配置（开发中）</string>
     <string name="applist_placeholder_desc">名单需要在 SystemUI 进程内可靠解析前台应用包名，该能力尚未确认可用。当前以「回顶控制」中的总开关为准，稍后版本将开放按应用单独配置。</string>
 </resources>

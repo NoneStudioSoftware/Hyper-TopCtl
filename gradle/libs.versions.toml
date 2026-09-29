@@ -5,6 +5,7 @@ agp = "9.4.1"
 # compiler plugin at a higher version upgrades the built-in Kotlin compiler to match.
 kotlin = "2.4.20"
 coreKtx = "1.18.0"
+coreSplashscreen = "1.2.0"
 lifecycle = "2.10.0"
 activityCompose = "1.13.0"
 composeBom = "2026.09.00"
@@ -30,6 +31,7 @@ libxposed-service = { group = "io.github.libxposed", name = "service", version.r
 
 # AndroidX / Compose
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
