@@ -56,6 +56,14 @@ class AppSettingsRepository(context: Context) {
         get() = prefs.getString(KEY_PREDICTIVE_BACK_ANIMATION, "scale") ?: "scale"
         set(value) = prefs.edit { putString(KEY_PREDICTIVE_BACK_ANIMATION, value) }
 
+    /** Whether Android should dispatch system predictive-back callbacks for the selected UI mode. */
+    val enablePredictiveBack: Boolean
+        get() = if (uiFramework == UiFrameworkValue.MATERIAL) {
+            predictiveBackAnimation != "none"
+        } else {
+            miuixTransitionAnimation
+        }
+
     var predictiveBackExitDirection: String
         get() = prefs.getString(KEY_PREDICTIVE_BACK_EXIT_DIRECTION, "follow_gesture") ?: "follow_gesture"
         set(value) = prefs.edit { putString(KEY_PREDICTIVE_BACK_EXIT_DIRECTION, value) }

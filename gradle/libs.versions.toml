@@ -21,6 +21,7 @@ xposedService = "102.0.0"
 # Miuix (HyperOS-style Compose UI). 0.9.2+ is built with Kotlin 2.4.0, so the Kotlin compiler
 # must be 2.4+ to read its metadata.
 miuix = "0.9.4"
+hiddenApiBypass = "6.1"
 
 [libraries]
 # Xposed
@@ -44,6 +45,9 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 
 # Dynamic color / Material You seed-based color scheme (materialkolor)
 material-kolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
+
+# Hidden API compatibility (KernelSU Manager predictive-back behavior)
+hiddenapibypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
 
 # Miuix
 miuix-ui = { module = "top.yukonga.miuix.kmp:miuix-ui-android", version.ref = "miuix" }

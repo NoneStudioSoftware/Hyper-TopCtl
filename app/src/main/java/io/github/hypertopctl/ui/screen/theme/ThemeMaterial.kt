@@ -209,7 +209,7 @@ fun ThemeMaterial(
                         val anims = PredictiveBackAnimation.entries
                         SettingsChooseWidget(
                             icon = Icons.TwoTone.Animation,
-                            title = stringResource(R.string.predictive_back_animation),
+                            title = stringResource(R.string.settings_transition_animation),
                             items = anims.map { anim ->
                                 when (anim) {
                                     PredictiveBackAnimation.None -> stringResource(R.string.predictive_back_animation_none)

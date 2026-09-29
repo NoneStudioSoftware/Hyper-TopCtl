@@ -1,5 +1,6 @@
 package io.github.hypertopctl.ui
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.hypertopctl.App
+import io.github.hypertopctl.data.AppSettingsRepository
 import io.github.hypertopctl.ui.animation.predictiveback.NoPredictiveBackTransition
 import io.github.hypertopctl.ui.animation.predictiveback.PredictiveBackAnimation
 import io.github.hypertopctl.ui.animation.predictiveback.installerNavTransition
@@ -188,15 +191,27 @@ class MainActivity : ComponentActivity() {
                             ThemeScreen(
                                 state = state,
                                 onBack = onBack,
-                                onUiFrameworkChange = vm::setUiFramework,
+                                onUiFrameworkChange = { framework ->
+                                    val previouslyEnabled = AppSettingsRepository(this@MainActivity).enablePredictiveBack
+                                    vm.setUiFramework(framework)
+                                    syncPredictiveBackCallback(previouslyEnabled)
+                                },
                                 onThemeModeChange = vm::setThemeMode,
                                 onMiuixMonetChange = vm::setMiuixMonet,
                                 onDynamicColorChange = vm::setDynamicColor,
                                 onKeyColorChange = vm::setKeyColor,
                                 onColorStyleChange = vm::setColorStyle,
                                 onColorSpecChange = vm::setColorSpec,
-                                onMiuixTransitionAnimationChange = vm::setMiuixTransitionAnimation,
-                                onPredictiveBackAnimationChange = vm::setPredictiveBackAnimation,
+                                onMiuixTransitionAnimationChange = { enabled ->
+                                    val previouslyEnabled = AppSettingsRepository(this@MainActivity).enablePredictiveBack
+                                    vm.setMiuixTransitionAnimation(enabled)
+                                    syncPredictiveBackCallback(previouslyEnabled)
+                                },
+                                onPredictiveBackAnimationChange = { animation ->
+                                    val previouslyEnabled = AppSettingsRepository(this@MainActivity).enablePredictiveBack
+                                    vm.setPredictiveBackAnimation(animation)
+                                    syncPredictiveBackCallback(previouslyEnabled)
+                                },
                                 onPredictiveBackExitDirectionChange = vm::setPredictiveBackExitDirection,
                             )
                         }
@@ -208,6 +223,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun syncPredictiveBackCallback(previouslyEnabled: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+        val enabled = AppSettingsRepository(this).enablePredictiveBack
+        if (enabled == previouslyEnabled) return
+        App.setEnableOnBackInvokedCallback(applicationInfo, enabled)
+        recreate()
     }
 }
 

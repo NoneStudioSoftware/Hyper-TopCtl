@@ -1,7 +1,11 @@
 package io.github.hypertopctl
 
 import android.app.Application
+import android.content.pm.ApplicationInfo
+import android.os.Build
+import io.github.hypertopctl.data.AppSettingsRepository
 import io.github.libxposed.service.XposedService
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import io.github.libxposed.service.XposedServiceHelper
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.concurrent.Volatile
@@ -36,6 +40,22 @@ class App : Application(), XposedServiceHelper.OnServiceListener {
             listeners.remove(listener)
         }
 
+        /** Mirrors KernelSU Manager: opt out of Android's platform predictive-back callback when disabled. */
+        fun setEnableOnBackInvokedCallback(appInfo: ApplicationInfo, enable: Boolean) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+            runCatching {
+                HiddenApiBypass.addHiddenApiExemptions(
+                    "Landroid/content/pm/ApplicationInfo;->setEnableOnBackInvokedCallback",
+                )
+                val method = ApplicationInfo::class.java.getDeclaredMethod(
+                    "setEnableOnBackInvokedCallback",
+                    Boolean::class.javaPrimitiveType,
+                )
+                method.isAccessible = true
+                method.invoke(appInfo, enable)
+            }
+        }
+
         private fun notifyAll(current: XposedService?) {
             for (l in listeners) if (listeners.contains(l)) l.onServiceStateChanged(current)
         }
@@ -48,6 +68,10 @@ class App : Application(), XposedServiceHelper.OnServiceListener {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        setEnableOnBackInvokedCallback(
+            applicationInfo,
+            AppSettingsRepository(this).enablePredictiveBack,
+        )
         XposedServiceHelper.registerListener(this)
     }
 
