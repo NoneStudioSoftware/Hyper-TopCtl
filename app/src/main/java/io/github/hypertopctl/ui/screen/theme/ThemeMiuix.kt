@@ -37,7 +37,6 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
@@ -224,9 +223,10 @@ fun ThemeMiuix(
 
             // Transition animation (Miuix side: simple toggle)
             item {
-                SmallTitle(
+                Text(
                     text = stringResource(R.string.predictive_back_settings),
-                    modifier = Modifier.padding(top = 12.dp),
+                    color = colorScheme.onBackground,
+                    modifier = Modifier.padding(top = 12.dp, start = 12.dp, bottom = 6.dp),
                 )
                 Card(modifier = Modifier.fillMaxWidth()) {
                     SwitchPreference(

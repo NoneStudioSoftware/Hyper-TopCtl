@@ -11,8 +11,7 @@ fun AppListScreen(
     onTogglePackage: (String) -> Unit,
 ) {
     when (LocalUiMode.current) {
-        // Miuix implementation lands after the Material one is verified.
-        UiMode.Miuix -> AppListMiuix(state)
+        UiMode.Miuix -> AppListMiuix(state, onTogglePackage)
         UiMode.Material -> AppListMaterial(state, onTogglePackage)
     }
 }

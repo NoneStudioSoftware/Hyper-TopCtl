@@ -1,5 +1,10 @@
 package io.github.hypertopctl.ui.screen.topctl
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +38,11 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
 import top.yukonga.miuix.kmp.utils.overScrollVertical
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
+/**
+ * TopCtl control screen in Miuix style. The list-mode card keeps its original content and
+ * expands/collapses with the standard KSU-home-style AnimatedVisibility whenever the master
+ * switch toggles.
+ */
 @Composable
 fun TopCtlMiuix(
     state: MainUiState,
@@ -76,38 +86,46 @@ fun TopCtlMiuix(
                         )
                     }
 
-                    Card(Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(stringResource(R.string.list_mode))
-                            Text(
-                                text = when (state.listMode) {
-                                    ListMode.WHITELIST -> stringResource(R.string.list_mode_whitelist)
-                                    ListMode.BLACKLIST -> stringResource(R.string.list_mode_blacklist)
-                                },
-                                color = colorScheme.onSurfaceVariantSummary,
-                            )
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                ListMode.entries.forEach { mode ->
-                                    TextButton(
-                                        text = mode.name,
-                                        onClick = { onListModeChange(mode) },
-                                        modifier = Modifier.weight(1f),
-                                        colors = if (state.listMode == mode) {
-                                            ButtonDefaults.textButtonColorsPrimary()
-                                        } else {
-                                            ButtonDefaults.textButtonColors()
-                                        },
-                                    )
+                    // List-mode card keeps its original content; visibility follows the
+                    // master switch with the same expand/collapse animation as KSU home.
+                    AnimatedVisibility(
+                        visible = state.globalEnabled,
+                        enter = fadeIn() + expandVertically(),
+                        exit = shrinkVertically() + fadeOut(),
+                    ) {
+                        Card(Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(stringResource(R.string.list_mode))
+                                Text(
+                                    text = when (state.listMode) {
+                                        ListMode.WHITELIST -> stringResource(R.string.list_mode_whitelist)
+                                        ListMode.BLACKLIST -> stringResource(R.string.list_mode_blacklist)
+                                    },
+                                    color = colorScheme.onSurfaceVariantSummary,
+                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    ListMode.entries.forEach { mode ->
+                                        TextButton(
+                                            text = mode.name,
+                                            onClick = { onListModeChange(mode) },
+                                            modifier = Modifier.weight(1f),
+                                            colors = if (state.listMode == mode) {
+                                                ButtonDefaults.textButtonColorsPrimary()
+                                            } else {
+                                                ButtonDefaults.textButtonColors()
+                                            },
+                                        )
+                                    }
                                 }
+                                Text(
+                                    text = if (state.packages.isEmpty()) {
+                                        stringResource(R.string.app_list_empty)
+                                    } else {
+                                        "${stringResource(R.string.app_list)} (${state.packages.size})"
+                                    },
+                                    color = colorScheme.onSurfaceVariantSummary,
+                                )
                             }
-                            Text(
-                                text = if (state.packages.isEmpty()) {
-                                    stringResource(R.string.app_list_empty)
-                                } else {
-                                    "${stringResource(R.string.app_list)} (${state.packages.size})"
-                                },
-                                color = colorScheme.onSurfaceVariantSummary,
-                            )
                         }
                     }
                 }

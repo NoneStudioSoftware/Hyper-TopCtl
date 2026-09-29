@@ -21,7 +21,7 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTitle
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Info
@@ -61,9 +61,10 @@ fun SettingsMiuix(
             overscrollEffect = null,
         ) {
             item {
-                SmallTitle(
+                Text(
                     text = stringResource(R.string.settings_category_appearance),
-                    modifier = Modifier.padding(top = 12.dp),
+                    color = colorScheme.onBackground,
+                    modifier = Modifier.padding(top = 12.dp, start = 12.dp, bottom = 6.dp),
                 )
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -85,9 +86,10 @@ fun SettingsMiuix(
             }
 
             item {
-                SmallTitle(
+                Text(
                     text = stringResource(R.string.settings_category_about),
-                    modifier = Modifier.padding(top = 12.dp),
+                    color = colorScheme.onBackground,
+                    modifier = Modifier.padding(top = 12.dp, start = 12.dp, bottom = 6.dp),
                 )
                 Card(
                     modifier = Modifier.fillMaxWidth(),

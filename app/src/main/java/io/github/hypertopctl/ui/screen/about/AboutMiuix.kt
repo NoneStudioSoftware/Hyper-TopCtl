@@ -32,12 +32,12 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.runtime.remember
 import io.github.hypertopctl.BuildConfig
 import io.github.hypertopctl.R
+import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
@@ -133,9 +133,10 @@ fun AboutMiuix(onBack: () -> Unit) {
 
             // Categories and preferences
             item {
-                SmallTitle(
+                Text(
                     text = stringResource(R.string.about),
-                    modifier = Modifier.padding(top = 12.dp),
+                    color = colorScheme.onBackground,
+                    modifier = Modifier.padding(top = 12.dp, start = 12.dp, bottom = 6.dp),
                 )
                 Card(modifier = Modifier.fillMaxWidth()) {
                     ArrowPreference(
@@ -154,7 +155,7 @@ fun AboutMiuix(onBack: () -> Unit) {
                             context.startActivity(intent)
                         },
                     )
-                    ArrowPreference(
+                    BasicComponent(
                         title = "模块说明",
                         summary = stringResource(R.string.about_desc),
                         startAction = {
@@ -165,9 +166,8 @@ fun AboutMiuix(onBack: () -> Unit) {
                                 tint = colorScheme.onBackground,
                             )
                         },
-                        endActions = {},
                     )
-                    ArrowPreference(
+                    BasicComponent(
                         title = "运行架构",
                         summary = "基于现代 libxposed API 102 (LSPosed 2.x)",
                         startAction = {
@@ -178,7 +178,6 @@ fun AboutMiuix(onBack: () -> Unit) {
                                 tint = colorScheme.onBackground,
                             )
                         },
-                        endActions = {},
                     )
                 }
             }

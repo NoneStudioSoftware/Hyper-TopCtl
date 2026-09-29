@@ -197,7 +197,6 @@ fun ThemeMaterial(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(10.dp))
             }
 
             // Predictive back & secondary screen transitions
