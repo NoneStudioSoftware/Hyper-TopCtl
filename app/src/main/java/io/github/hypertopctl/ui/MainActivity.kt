@@ -43,6 +43,7 @@ import io.github.hypertopctl.ui.navigation.Route
 import io.github.hypertopctl.ui.screen.about.AboutScreen
 import io.github.hypertopctl.ui.screen.applist.AppListScreen
 import io.github.hypertopctl.ui.screen.home.HomeScreen
+import io.github.hypertopctl.ui.screen.log.LogScreen
 import io.github.hypertopctl.ui.screen.settings.SettingsScreen
 import io.github.hypertopctl.ui.screen.theme.ThemeScreen
 import io.github.hypertopctl.ui.screen.topctl.TopCtlScreen
@@ -189,6 +190,7 @@ class MainActivity : ComponentActivity() {
                                             state = state,
                                             onOpenTheme = { navigator.push(Route.Theme) },
                                             onOpenAbout = { navigator.push(Route.About) },
+                                            onOpenLog = { navigator.push(Route.Log) },
                                         )
                                     }
                                 }
@@ -226,6 +228,10 @@ class MainActivity : ComponentActivity() {
 
                         entry<Route.About>(swipeDismiss = swipeBackDirection) {
                             AboutScreen(onBack = onBack)
+                        }
+
+                        entry<Route.Log>(swipeDismiss = swipeBackDirection) {
+                            LogScreen(onBack = onBack)
                         }
                     }
                 }

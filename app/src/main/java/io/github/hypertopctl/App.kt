@@ -3,6 +3,7 @@ package io.github.hypertopctl
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.os.Build
+import io.github.hypertopctl.data.AppLogger
 import io.github.hypertopctl.data.AppSettingsRepository
 import io.github.libxposed.service.XposedService
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -87,6 +88,8 @@ class App : Application(), XposedServiceHelper.OnServiceListener {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        AppLogger.initialize(this)
+        AppLogger.log("App", "应用启动，构建类型：${AppLogger.buildTypeLabel()}")
         setEnableOnBackInvokedCallback(
             applicationInfo,
             AppSettingsRepository(this).enablePredictiveBack,
@@ -96,11 +99,13 @@ class App : Application(), XposedServiceHelper.OnServiceListener {
 
     override fun onServiceBind(service: XposedService) {
         Companion.service = service
+        AppLogger.log("Xposed", "LSPosed service 已连接")
         notifyAll(service)
     }
 
     override fun onServiceDied(service: XposedService) {
         Companion.service = null
+        AppLogger.log("Xposed", "LSPosed service 已断开")
         notifyAll(null)
     }
 }

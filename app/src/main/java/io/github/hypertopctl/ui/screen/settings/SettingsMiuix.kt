@@ -36,6 +36,7 @@ fun SettingsMiuix(
     @Suppress("UNUSED_PARAMETER") state: MainUiState,
     onOpenTheme: () -> Unit,
     onOpenAbout: () -> Unit,
+    onOpenLog: () -> Unit,
 ) {
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
@@ -81,6 +82,31 @@ fun SettingsMiuix(
                             )
                         },
                         onClick = onOpenTheme,
+                    )
+                }
+            }
+
+            item {
+                Text(
+                    text = stringResource(R.string.settings_category_diagnostics),
+                    color = colorScheme.onBackground,
+                    modifier = Modifier.padding(top = 12.dp, start = 12.dp, bottom = 6.dp),
+                )
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    ArrowPreference(
+                        title = stringResource(R.string.settings_log_entry),
+                        summary = stringResource(R.string.settings_log_entry_desc),
+                        startAction = {
+                            Icon(
+                                imageVector = MiuixIcons.Info,
+                                modifier = Modifier.padding(end = 6.dp),
+                                contentDescription = stringResource(R.string.settings_log_entry),
+                                tint = colorScheme.onBackground,
+                            )
+                        },
+                        onClick = onOpenLog,
                     )
                 }
             }

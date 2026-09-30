@@ -10,9 +10,10 @@ fun SettingsScreen(
     state: MainUiState,
     onOpenTheme: () -> Unit,
     onOpenAbout: () -> Unit,
+    onOpenLog: () -> Unit,
 ) {
     when (LocalUiMode.current) {
-        UiMode.Miuix -> SettingsMiuix(state, onOpenTheme, onOpenAbout)
-        UiMode.Material -> SettingsMaterial(state, onOpenTheme, onOpenAbout)
+        UiMode.Miuix -> SettingsMiuix(state, onOpenTheme, onOpenAbout, onOpenLog)
+        UiMode.Material -> SettingsMaterial(state, onOpenTheme, onOpenAbout, onOpenLog)
     }
 }

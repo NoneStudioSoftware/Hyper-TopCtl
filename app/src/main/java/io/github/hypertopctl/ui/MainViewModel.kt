@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import io.github.hypertopctl.App
+import io.github.hypertopctl.data.AppLogger
 import io.github.hypertopctl.data.AppSettingsRepository
 import io.github.hypertopctl.data.SettingsRepository
 import io.github.hypertopctl.lsp.ListMode
@@ -96,6 +97,11 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
 
     private fun reload() {
         val config = repo.readConfig()
+        AppLogger.log(
+            "Config",
+            "读取配置：active=${repo.isActive}, globalEnabled=${config.globalEnabled}, " +
+                "listMode=${config.listMode}, packages=${config.packages.size}",
+        )
         _state.update {
             it.copy(
                 active = repo.isActive,
@@ -127,16 +133,19 @@ class MainViewModel : ViewModel(), App.ServiceStateListener {
 
     fun setGlobalEnabled(value: Boolean) {
         repo.setGlobalEnabled(value)
+        AppLogger.log("Config", "写入全局开关：$value")
         _state.update { it.copy(globalEnabled = value) }
     }
 
     fun setListMode(mode: ListMode) {
         repo.setListMode(mode)
+        AppLogger.log("Config", "写入名单模式：$mode")
         _state.update { it.copy(listMode = mode) }
     }
 
     fun setPackages(packages: Set<String>) {
         repo.setPackages(packages)
+        AppLogger.log("Config", "写入名单：${packages.size} 个包名")
         _state.update { it.copy(packages = packages) }
     }
 

@@ -90,6 +90,9 @@
     <string name="settings_theme_entry_desc">界面风格、主题模式与配色</string>
     <string name="about_entry_desc">版本、模块信息与 Hook 说明</string>
     <string name="settings_category_appearance">界面与外观</string>
+    <string name="settings_category_diagnostics">诊断</string>
+    <string name="settings_log_entry">应用日志</string>
+    <string name="settings_log_entry_desc">查看、保存或分享应用侧诊断日志</string>
 
     <!-- Predictive back & transition animation -->
     <string name="settings_transition_animation">预见式返回动画</string>
@@ -123,6 +126,16 @@
     <string name="applist_selected_count">已选 %1$d 个应用</string>
     <string name="applist_empty_result">没有匹配的应用</string>
     <string name="applist_system_badge">系统</string>
-    <string name="applist_placeholder_title">单应用配置（开发中）</string>
-    <string name="applist_placeholder_desc">名单需要在 SystemUI 进程内可靠解析前台应用包名，该能力尚未确认可用。当前以「回顶控制」中的总开关为准，稍后版本将开放按应用单独配置。</string>
+
+    <!-- Diagnostics -->
+    <string name="log_title">应用日志</string>
+    <string name="log_build_info">当前构建：%1$s</string>
+    <string name="log_debug_issue_hint">Debug 版本可用于提交 Issue，请优先附上此版本日志。</string>
+    <string name="log_release_issue_hint">当前为 Release 版本；提交 Issue 请使用 Debug 版本。</string>
+    <string name="log_hook_hint">这里只记录应用侧日志。hook 侧日志请在 LSPosed 管理器中查看，日志标签为 HyperTopCtl。</string>
+    <string name="log_empty">暂无应用日志</string>
+    <string name="log_save">保存日志</string>
+    <string name="log_share">分享日志</string>
+    <string name="log_clear">清空日志</string>
+    <string name="log_saved">日志已保存</string>
 </resources>
