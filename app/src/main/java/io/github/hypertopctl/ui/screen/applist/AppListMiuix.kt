@@ -1,8 +1,5 @@
 package io.github.hypertopctl.ui.screen.applist
 
-import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -47,10 +44,7 @@ import io.github.hypertopctl.ui.component.miuix.SearchBarFake
 import io.github.hypertopctl.ui.component.miuix.SearchBox
 import io.github.hypertopctl.ui.component.miuix.SearchPager
 import io.github.hypertopctl.ui.component.miuix.SearchStatus
-import io.github.hypertopctl.ui.component.settings.SegmentedColumn
-import io.github.hypertopctl.ui.component.settings.SettingsBaseWidget
 import io.github.hypertopctl.ui.util.DrawablePainter
-import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Checkbox
 import top.yukonga.miuix.kmp.basic.DropdownImpl
@@ -64,6 +58,7 @@ import top.yukonga.miuix.kmp.basic.PopupPositionProvider
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.basic.Close
 import top.yukonga.miuix.kmp.icon.extended.MoreCircle
@@ -94,7 +89,6 @@ fun AppListMiuix(
         return AppListDisabledMiuix()
     }
 
-    var query by rememberSaveable { mutableStateOf("") }
     var showSystem by rememberSaveable { mutableStateOf(false) }
     var sortType by rememberSaveable { mutableStateOf(AppSortType.NAME) }
     var reverseOrder by rememberSaveable { mutableStateOf(false) }
@@ -115,6 +109,19 @@ fun AppListMiuix(
     var searchStatus by remember {
         mutableStateOf(SearchStatus(label = context.getString(R.string.applist_search_hint)))
     }
+    // The search overlay writes into searchStatus.searchText; filtering reads it directly so
+    // the two can never drift apart. resultStatus follows the text: KSU's pager only renders
+    // the results block in SHOW state.
+    fun updateSearchStatus(next: SearchStatus) {
+        searchStatus = next.copy(
+            resultStatus = if (next.searchText.isEmpty()) {
+                SearchStatus.ResultStatus.DEFAULT
+            } else {
+                SearchStatus.ResultStatus.SHOW
+            }
+        )
+    }
+    val query = searchStatus.searchText
 
     val sorted = remember(apps, sortType, reverseOrder) {
         val comparator = when (sortType) {
@@ -125,12 +132,9 @@ fun AppListMiuix(
         val result = apps.sortedWith(comparator)
         if (reverseOrder) result.asReversed() else result
     }
-    val checkedEntries = remember(sorted, state.packages) {
-        sorted.filter { it.packageName in state.packages }
-    }
-    val uncheckedEntries = remember(sorted, state.packages) {
-        sorted.filterNot { it.packageName in state.packages }
-    }
+    // Checked apps form their own group pinned to the top of the list.
+    val checkedEntries = sorted.filter { it.packageName in state.packages }
+    val uncheckedEntries = sorted.filterNot { it.packageName in state.packages }
     val filteredChecked = remember(checkedEntries, query) { filterEntries(checkedEntries, query) }
     val filteredUnchecked = remember(uncheckedEntries, query) { filterEntries(uncheckedEntries, query) }
 
@@ -248,7 +252,7 @@ fun AppListMiuix(
                                     with(density) {
                                         val newOffsetY = coordinates.positionInWindow().y.toDp()
                                         if (searchStatus.offsetY != newOffsetY) {
-                                            searchStatus = searchStatus.copy(offsetY = newOffsetY)
+                                            updateSearchStatus(searchStatus.copy(offsetY = newOffsetY))
                                         }
                                     }
                                 }
@@ -256,7 +260,7 @@ fun AppListMiuix(
                                     if (searchStatus.isCollapsed()) {
                                         Modifier.pointerInput(Unit) {
                                             detectTapGestures {
-                                                searchStatus = searchStatus.copy(current = SearchStatus.Status.EXPANDING)
+                                                updateSearchStatus(searchStatus.copy(current = SearchStatus.Status.EXPANDING))
                                             }
                                         }
                                     } else Modifier,
@@ -270,7 +274,7 @@ fun AppListMiuix(
         },
         popupHost = {
             searchStatus.SearchPager(
-                onSearchStatusChange = { searchStatus = it },
+                onSearchStatusChange = { updateSearchStatus(it) },
                 searchBarTopPadding = dynamicTopPadding,
                 defaultResult = {},
             ) {
@@ -278,6 +282,11 @@ fun AppListMiuix(
                     modifier = Modifier
                         .fillMaxSize()
                         .overScrollVertical(),
+                    contentPadding = PaddingValues(
+                        top = 6.dp,
+                        start = 12.dp,
+                        end = 12.dp,
+                    ),
                 ) {
                     if (filteredChecked.isNotEmpty()) {
                         item(key = "checked_header") {
@@ -319,20 +328,20 @@ fun AppListMiuix(
     ) { innerPadding ->
         searchStatus.SearchBox {
             val lazyListState = rememberLazyListState()
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .scrollEndHaptic()
-                        .overScrollVertical()
-                        .nestedScroll(scrollBehavior.nestedScrollConnection),
-                    contentPadding = PaddingValues(
-                        top = innerPadding.calculateTopPadding() + 6.dp,
-                        start = 12.dp,
-                        end = 12.dp,
-                    ),
-                    overscrollEffect = null,
-                ) {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .scrollEndHaptic()
+                    .overScrollVertical()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection),
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding() + 6.dp,
+                    start = 12.dp,
+                    end = 12.dp,
+                ),
+                overscrollEffect = null,
+            ) {
                 if (loading) {
                     item(key = "loading") {
                         Text(
@@ -344,11 +353,6 @@ fun AppListMiuix(
                     }
                 } else {
                     item(key = "mode_hint") {
-                        val hintColor = if (state.listMode == ListMode.BLACKLIST) {
-                            colorScheme.onSurface
-                        } else {
-                            colorScheme.onSurfaceVariantSummary
-                        }
                         Card(Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(
@@ -359,7 +363,7 @@ fun AppListMiuix(
                                         }
                                     ),
                                     fontSize = 14.sp,
-                                    color = hintColor,
+                                    color = colorScheme.onSurface,
                                 )
                                 Text(
                                     text = stringResource(R.string.applist_selected_count, state.packages.size),
@@ -409,6 +413,14 @@ fun AppListMiuix(
     }
 }
 
+private fun filterEntries(entries: List<AppEntry>, query: String): List<AppEntry> {
+    val q = query.trim()
+    if (q.isEmpty()) return entries
+    return entries.filter {
+        it.label.contains(q, ignoreCase = true) || it.packageName.contains(q, ignoreCase = true)
+    }
+}
+
 /** Centered unavailable placeholder shown when the master switch is off (Miuix style). */
 @Composable
 private fun AppListDisabledMiuix() {
@@ -450,14 +462,6 @@ private fun AppListDisabledMiuix() {
                 )
             }
         }
-    }
-}
-
-private fun filterEntries(entries: List<AppEntry>, query: String): List<AppEntry> {
-    val q = query.trim()
-    if (q.isEmpty()) return entries
-    return entries.filter {
-        it.label.contains(q, ignoreCase = true) || it.packageName.contains(q, ignoreCase = true)
     }
 }
 
