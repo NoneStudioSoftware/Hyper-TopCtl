@@ -1,5 +1,8 @@
 package io.github.hypertopctl.lsp.module
 
+import android.app.ActivityManager
+import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.annotation.Keep
 import io.github.hypertopctl.lsp.Constant
@@ -64,17 +67,31 @@ class ScrollTopModule : XposedModule() {
     /**
      * Best-effort resolution of the foreground package from the SystemUI process.
      *
-     * NOTE (global-first policy): reliably determining the foreground app from within SystemUI is
-     * not guaranteed across HyperOS versions. When it cannot be resolved this returns null and the
-     * config falls back to the global policy (see [ModuleConfig.shouldIntercept]). The whitelist is
-     * therefore an enhancement layered on the always-reliable global switch.
+     * The hook process has no injected Context, so [android.app.ActivityThread.currentApplication]
+     * (a classic Xposed technique, exempted from hidden-API restrictions by the framework) is used
+     * to obtain one, then the running-tasks API returns the top task — SystemUI is a privileged
+     * app and can see other apps' tasks. When any step fails (context not yet attached, permission
+     * missing on some builds) this returns null and the config falls back to the global policy
+     * (see [ModuleConfig.shouldIntercept]).
      */
-    internal fun resolveForegroundPackage(chain: XposedInterface.Chain): String? {
-        // Placeholder for a future, version-specific resolver (e.g. reading the current task or
-        // the MiuiInputManager's associated window token). Returning null keeps behavior correct
-        // and safe under the global-first policy.
-        return null
-    }
+    internal fun resolveForegroundPackage(chain: XposedInterface.Chain): String? = runCatching {
+        val context = currentApplicationContext() ?: return@runCatching null
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            ?: return@runCatching null
+        am.getRunningTasks(1)
+            ?.firstOrNull()
+            ?.topActivity
+            ?.packageName
+    }.onFailure {
+        log(Log.WARN, TAG, "resolveForegroundPackage failed: ${it.message}")
+    }.getOrNull()
+
+    private fun currentApplicationContext(): Context? = runCatching {
+        val activityThread = Class.forName("android.app.ActivityThread")
+        activityThread
+            .getMethod("currentApplication")
+            .invoke(null) as? Application
+    }.getOrNull()?.applicationContext
 
     /**
      * The actual interceptor. Separated into its own [XposedInterface.Hooker] so the logic is clear
@@ -90,10 +107,10 @@ class ScrollTopModule : XposedModule() {
 
             return if (config.shouldIntercept(pkg)) {
                 // Suppress scroll-to-top: do NOT call chain.proceed().
-                module.log(Log.DEBUG, TAG, "Intercepted scrollToTop (pkg=$pkg)")
+                module.log(Log.INFO, TAG, "Intercepted scrollToTop (pkg=$pkg)")
                 null
             } else {
-                module.log(Log.DEBUG, TAG, "Allowed scrollToTop (pkg=$pkg)")
+                module.log(Log.INFO, TAG, "Allowed scrollToTop (pkg=$pkg)")
                 chain.proceed()
             }
         }
