@@ -1,8 +1,48 @@
+import java.io.File
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     id("kotlin-parcelize")
+}
+
+// ---- Version: derived from the git commit count ----
+// versionCode must increase monotonically, otherwise a new APK cannot install over an existing
+// one. The commit count gives that for free. CI checks out with `fetch-depth: 0`; a shallow
+// clone would report 1. Building from a source archive without .git falls back to 1 as well.
+val gitCommitCount: Int = runCatching {
+    project.providers.exec {
+        commandLine("git", "rev-list", "--count", "HEAD")
+        workingDir = rootProject.projectDir
+    }.standardOutput.asText.get().trim().toInt()
+}.getOrDefault(1)
+
+val appVersionCode = gitCommitCount
+val appVersionName = "1.0.0.$appVersionCode"
+
+// ---- Release signing ----
+// Credentials come from Gradle properties first, environment variables second, so a developer
+// can keep them in the user-level ~/.gradle/gradle.properties while CI injects env vars.
+// Secrets never live in the repository.
+fun signingValue(name: String): String? =
+    project.providers.gradleProperty(name).orNull
+        ?: project.providers.environmentVariable(name).orNull
+
+val releaseKeystore = signingValue("KEYSTORE_FILE")?.let(::File)?.takeIf { it.isFile }
+val releaseKeystorePassword = signingValue("KEYSTORE_PASSWORD")
+val releaseKeyAlias = signingValue("KEY_ALIAS")
+val releaseKeyPassword = signingValue("KEY_PASSWORD")
+val hasReleaseSigning = releaseKeystore != null &&
+    releaseKeystorePassword != null &&
+    releaseKeyAlias != null &&
+    releaseKeyPassword != null
+
+if (!hasReleaseSigning) {
+    logger.lifecycle(
+        "Release signing is not configured; release APKs will be unsigned. " +
+            "Set KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD to sign them.",
+    )
 }
 
 android {
@@ -15,12 +55,26 @@ android {
         applicationId = "io.github.hypertopctl"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = releaseKeystore
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
 
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -38,6 +92,12 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+// Name artifacts after the version so release uploads are self-describing:
+// e.g. Hyper-TopCtl_1.0.0.14_14-release.apk
+base {
+    archivesName.set("Hyper-TopCtl_${appVersionName}_${appVersionCode}")
 }
 
 dependencies {

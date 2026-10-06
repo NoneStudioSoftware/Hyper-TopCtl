@@ -19,6 +19,11 @@ local.properties
 .DS_Store
 Thumbs.db
 
+# Release signing material — never commit these
+*.jks
+*.keystore
+keystore.b64
+
 # Reference clones — not part of the build
 /_refs/
 

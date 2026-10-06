@@ -1,0 +1,64 @@
+name: Release
+
+# Publishing happens only for version tags (v*). Reuses build.yml so the build steps live in one
+# place; that workflow_call reference is a reuse hook, not an additional trigger.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布的 tag，例如 v1.0.0'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  release:
+    name: Publish release
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      # Fail fast instead of publishing an unsigned APK: a release is a deliberate action, and
+      # an unsigned build cannot install over an existing install.
+      - name: Require signing secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::KEYSTORE secret is not configured; refusing to publish an unsigned release."
+            exit 1
+          fi
+
+      - name: Download APKs
+        uses: actions/download-artifact@v8
+        with:
+          pattern: Hyper-TopCtl-*
+          merge-multiple: true
+          path: dist
+
+      - name: Show files
+        run: ls -l dist
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          name: ${{ inputs.tag || github.ref_name }}
+          files: dist/*.apk
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          prerelease: ${{ contains(inputs.tag || github.ref_name, '-rc') }}

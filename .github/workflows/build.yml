@@ -1,0 +1,99 @@
+name: Build
+
+# Builds release and debug APKs for validation, and is reused by release.yml through
+# workflow_call (which is a reuse hook, not a separate user-facing trigger).
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build APKs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # versionCode is the commit count, so the full history must be present. A shallow
+          # clone would report 1 and produce a wrong, non-increasing version.
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      # Secrets cannot be referenced from a step `if`, so the check happens inside the script.
+      # Fork pull requests receive no secrets and simply build an unsigned APK.
+      - name: Prepare release signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PASSWORD_SECRET: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS_SECRET: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD_SECRET: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "SIGNING=absent" >> "$GITHUB_ENV"
+            echo "::warning::Release signing secrets are not configured; the release APK will be unsigned."
+            exit 0
+          fi
+          KEYSTORE_PATH="$RUNNER_TEMP/release.jks"
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          {
+            echo "KEYSTORE_FILE=$KEYSTORE_PATH"
+            echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD_SECRET"
+            echo "KEY_ALIAS=$KEY_ALIAS_SECRET"
+            echo "KEY_PASSWORD=$KEY_PASSWORD_SECRET"
+          } >> "$GITHUB_ENV"
+          echo "SIGNING=present" >> "$GITHUB_ENV"
+          echo "Signing material prepared."
+
+      - name: Build APKs
+        run: ./gradlew :app:assembleRelease :app:assembleDebug --stacktrace
+
+      - name: Inspect APKs
+        run: |
+          set -euo pipefail
+          BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n1)
+          RELEASE_APK=$(find app/build/outputs/apk/release -name '*.apk' | head -n1)
+          echo "release apk: $RELEASE_APK"
+          echo "debug apk: $(find app/build/outputs/apk/debug -name '*.apk' | head -n1)"
+          "$BUILD_TOOLS/aapt2" dump badging "$RELEASE_APK" | grep -E '^package:' || true
+          if [ "${SIGNING:-absent}" = "present" ]; then
+            "$BUILD_TOOLS/apksigner" verify --print-certs "$RELEASE_APK"
+          else
+            echo "::warning::Release APK is unsigned because signing secrets are absent."
+          fi
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: Hyper-TopCtl-release
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: Hyper-TopCtl-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
