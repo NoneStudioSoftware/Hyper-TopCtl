@@ -16,8 +16,10 @@ on:
 permissions:
   contents: read
 
+# Superseding applies per branch AND per event: a newer push to main still cancels an older push
+# build, but a manual run no longer kills the push-triggered build that is already running.
 concurrency:
-  group: build-${{ github.ref }}
+  group: build-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
