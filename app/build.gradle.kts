@@ -27,7 +27,9 @@ val gitShortSha: String? = runCatching {
 }.getOrNull()
 
 val appVersionCode = gitCommitCount
-val appVersionBase = "1.0.0"
+// Bumped by hand for a new feature release; the trailing commit count still makes every build
+// uniquely identifiable and monotonically installable.
+val appVersionBase = "1.0.1"
 val appVersionName = "$appVersionBase.$appVersionCode"
 
 // ---- Release signing ----
@@ -66,7 +68,7 @@ android {
         targetSdk = 37
         versionCode = appVersionCode
         versionName = appVersionName
-        // Consumed by the UI to render "1.0.0（15）" without re-parsing versionName.
+        // Consumed by the UI to render "1.0.1（15）" without re-parsing versionName.
         buildConfigField("String", "VERSION_BASE", "\"$appVersionBase\"")
     }
 
@@ -106,7 +108,7 @@ android {
 }
 
 // Name artifacts after the version so release uploads are self-describing:
-// e.g. Hyper-TopCtl_1.0.0.15_3ea94eb-release.apk
+// e.g. Hyper-TopCtl_1.0.1.15_3ea94eb-release.apk
 base {
     archivesName.set(
         listOfNotNull("Hyper-TopCtl", appVersionName, gitShortSha).joinToString("_"),

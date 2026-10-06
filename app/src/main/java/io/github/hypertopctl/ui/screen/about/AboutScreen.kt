@@ -5,7 +5,7 @@ import io.github.hypertopctl.BuildConfig
 import io.github.hypertopctl.ui.theme.LocalUiMode
 import io.github.hypertopctl.ui.theme.UiMode
 
-/** Human-facing version label, e.g. "1.0.0（15）". */
+/** Human-facing version label, e.g. "1.0.1（15）". */
 internal val appVersionDisplay: String =
     "${BuildConfig.VERSION_BASE}（${BuildConfig.VERSION_CODE}）"
 

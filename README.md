@@ -48,18 +48,19 @@ Hook（fail closed），不会盲目匹配其他实现。
 
 产物位于 `app/build/outputs/apk/<buildType>/`，文件名为
 `Hyper-TopCtl_<版本名>_<短提交哈希>-<buildType>.apk`，例如
-`Hyper-TopCtl_1.0.0.15_3ea94eb-release.apk`。
+`Hyper-TopCtl_1.0.1.15_3ea94eb-release.apk`。
 
 ### 版本号
 
-版本号由 git 提交数自动生成，无需手动维护：
+版本号由「手动基线 + 自动提交数」组成。基线在 `app/build.gradle.kts` 的 `appVersionBase` 中维护
+（发新的小版本时改这一处，当前为 `1.0.1`），提交数由 git 统计：
 
 | 字段 | 取值 | 示例 |
 | --- | --- | --- |
 | `versionCode` | 提交数 | `15` |
-| `versionName` | `1.0.0.<提交数>` | `1.0.0.15` |
+| `versionName` | `1.0.1.<提交数>` | `1.0.1.15` |
 
-界面与诊断日志中按 `1.0.0（提交数）` 展示，例如 `1.0.0（15）`；产物名额外带 7 位短提交哈希，
+界面与诊断日志中按 `1.0.1（提交数）` 展示，例如 `1.0.1（15）`；产物名额外带 7 位短提交哈希，
 用于区分同一版本号下的不同构建。
 
 没有 `.git` 的源码包构建时回退为 `1`。CI 使用 `fetch-depth: 0` 拉取完整历史，浅克隆会让提交数
@@ -94,8 +95,8 @@ Kotlin 编译器版本跟随 `org.jetbrains.kotlin.plugin.compose` 插件版本�
 发布由 GitHub Actions 完成，推送 `v*` 标签即自动构建并创建 GitHub Release：
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.1
+git push origin v1.0.1
 ```
 
 | 操作 | 结果 |
@@ -103,7 +104,7 @@ git push origin v1.0.0
 | 推送到 `main`、提交 PR、手动运行 Build | 只构建校验，产物在 Actions 运行的 Artifacts 区，**不发布** |
 | 推送 `v*` 标签 | 构建并发布，Release 附件含 Release 与 Debug 两个 APK |
 
-标签名含 `-rc` 时（如 `v1.0.0-rc1`）会标记为预发布。发布后若仍需发新版本，改动提交后另打一个
+标签名含 `-rc` 时（如 `v1.0.1-rc1`）会标记为预发布。发布后若仍需发新版本，改动提交后另打一个
 新标签即可，`versionCode` 会随提交数自动递增。
 
 ### Release 签名
