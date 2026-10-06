@@ -30,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.runtime.remember
-import io.github.hypertopctl.BuildConfig
 import io.github.hypertopctl.R
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
@@ -124,7 +123,7 @@ fun AboutMiuix(onBack: () -> Unit) {
                             fontSize = MiuixTheme.textStyles.title3.fontSize,
                         )
                         Text(
-                            text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                            text = appVersionDisplay,
                             color = colorScheme.onSurfaceVariantSummary,
                         )
                     }

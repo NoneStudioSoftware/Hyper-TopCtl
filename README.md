@@ -47,7 +47,8 @@ Hook（fail closed），不会盲目匹配其他实现。
 ```
 
 产物位于 `app/build/outputs/apk/<buildType>/`，文件名为
-`Hyper-TopCtl_1.0.0.<提交数>_<提交数>-<buildType>.apk`。
+`Hyper-TopCtl_<版本名>_<短提交哈希>-<buildType>.apk`，例如
+`Hyper-TopCtl_1.0.0.15_3ea94eb-release.apk`。
 
 ### 版本号
 
@@ -55,8 +56,11 @@ Hook（fail closed），不会盲目匹配其他实现。
 
 | 字段 | 取值 | 示例 |
 | --- | --- | --- |
-| `versionCode` | 提交数 | `14` |
-| `versionName` | `1.0.0.<提交数>` | `1.0.0.14` |
+| `versionCode` | 提交数 | `15` |
+| `versionName` | `1.0.0.<提交数>` | `1.0.0.15` |
+
+界面与诊断日志中按 `1.0.0（提交数）` 展示，例如 `1.0.0（15）`；产物名额外带 7 位短提交哈希，
+用于区分同一版本号下的不同构建。
 
 没有 `.git` 的源码包构建时回退为 `1`。CI 使用 `fetch-depth: 0` 拉取完整历史，浅克隆会让提交数
 退化为 1，导致 `versionCode` 不再递增、无法覆盖安装。

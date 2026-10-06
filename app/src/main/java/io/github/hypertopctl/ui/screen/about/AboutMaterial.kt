@@ -43,7 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.runtime.remember
-import io.github.hypertopctl.BuildConfig
 import io.github.hypertopctl.R
 import io.github.hypertopctl.ui.component.settings.AppBackButton
 import io.github.hypertopctl.ui.component.settings.SegmentedColumn
@@ -129,7 +128,7 @@ fun AboutMaterial(onBack: () -> Unit) {
                             style = MaterialTheme.typography.titleLarge,
                         )
                         Text(
-                            text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                            text = appVersionDisplay,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                         )

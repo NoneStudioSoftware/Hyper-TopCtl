@@ -18,8 +18,17 @@ val gitCommitCount: Int = runCatching {
     }.standardOutput.asText.get().trim().toInt()
 }.getOrDefault(1)
 
+// Short commit hash, used to tell builds of the same version apart in artifact names.
+val gitShortSha: String? = runCatching {
+    project.providers.exec {
+        commandLine("git", "rev-parse", "--short=7", "HEAD")
+        workingDir = rootProject.projectDir
+    }.standardOutput.asText.get().trim().ifBlank { null }
+}.getOrNull()
+
 val appVersionCode = gitCommitCount
-val appVersionName = "1.0.0.$appVersionCode"
+val appVersionBase = "1.0.0"
+val appVersionName = "$appVersionBase.$appVersionCode"
 
 // ---- Release signing ----
 // Credentials come from Gradle properties first, environment variables second, so a developer
@@ -57,6 +66,8 @@ android {
         targetSdk = 37
         versionCode = appVersionCode
         versionName = appVersionName
+        // Consumed by the UI to render "1.0.0（15）" without re-parsing versionName.
+        buildConfigField("String", "VERSION_BASE", "\"$appVersionBase\"")
     }
 
     signingConfigs {
@@ -95,9 +106,11 @@ android {
 }
 
 // Name artifacts after the version so release uploads are self-describing:
-// e.g. Hyper-TopCtl_1.0.0.14_14-release.apk
+// e.g. Hyper-TopCtl_1.0.0.15_3ea94eb-release.apk
 base {
-    archivesName.set("Hyper-TopCtl_${appVersionName}_${appVersionCode}")
+    archivesName.set(
+        listOfNotNull("Hyper-TopCtl", appVersionName, gitShortSha).joinToString("_"),
+    )
 }
 
 dependencies {
